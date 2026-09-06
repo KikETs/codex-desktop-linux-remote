@@ -83,7 +83,7 @@ def main():
     if args.enable_projects:
         enable_projects(args.codex_home)
         print('Enabled remote project selection in the isolated profile; restart the app.')
-    print('Add this destination under Settings > Connections > SSH, then reconnect it.')
+    print('Use the exact alias shown under Settings > Connections > SSH, then fully restart ChatGPT-Remote.')
 
 if __name__ == '__main__':
     main()

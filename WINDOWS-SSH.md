@@ -12,7 +12,11 @@ python3 scripts/configure-windows-ssh.py windows-workstation --enable-projects
 ```
 
 Replace `windows-workstation` with the exact SSH alias or destination you will add
-under Settings > Connections > SSH. Configure SSH key authentication and verify
+under Settings > Connections > SSH. For a discovered connection, use the displayed
+SSH alias exactly: an alias and a user-qualified destination are separate keys,
+even when SSH resolves them to the same machine. Fully restart the app after
+changing transport selection because an existing connection can retain its old
+transport instance. Configure SSH key authentication and verify
 the host key through your normal SSH setup first. The adapter uses batch mode and
 strict host-key checking. It does not handle password prompts.
 
