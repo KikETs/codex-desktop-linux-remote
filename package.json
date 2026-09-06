@@ -1,0 +1,10 @@
+{
+  "name": "linux-remote-controller-dev",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "test": "node --test test/provider.test.cjs"
+  },
+  "engines": { "node": ">=22" }
+}

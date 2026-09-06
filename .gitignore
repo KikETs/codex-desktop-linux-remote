@@ -1,0 +1,12 @@
+build/
+vendor/
+profile/
+*.log
+__pycache__/
+*.pyc
+*.deb
+*.asar
+*.node
+*.key
+*.pem
+.env*
