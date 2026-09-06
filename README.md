@@ -3,6 +3,14 @@
 설치된 공식 ChatGPT에서 별도의 Linux Remote Controller 개발 패키지를 만드는 로컬 빌드 도구다.
 OpenAI 공식 배포판이 아니다. 공식 앱 파일/로그인 프로필을 덮어쓰지 않는다.
 
+현재 기준 버전: **공식 ChatGPT `26.901.41600` → `chatgpt-remote 26.901.41600+remote.5`**.
+2026-09-06에 로컬 빌드·시뮬레이터 테스트를 검증했다. GUI/실제 원격 검증 범위는 아래 참고.
+
+```bash
+git clone https://github.com/KikETs/codex-desktop-linux-remote.git
+cd codex-desktop-linux-remote
+```
+
 ## 업데이트 후 한 번에 빌드
 
 ```bash
@@ -76,7 +84,7 @@ bash scripts/enable-tpm-access.sh
 이 저장소는 빌드 스크립트, 자체 키 helper 및 테스트만 포함한다.
 `build/`, `vendor/`, `profile/`, 로그, `.deb`, `.asar`, 키 파일은 제외한다.
 공식 바이너리를 GitHub Release에 올리지 않는다. 사용자가 자기 설치본으로 로컬 빌드한다.
-현재는 로컬 Git 저장소이며 원격 저장소로 업로드하지 않았다.
+저장소: https://github.com/KikETs/codex-desktop-linux-remote
 
 ## 제거
 
