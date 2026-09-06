@@ -12,7 +12,7 @@ if spec['version'] != '26.901.41600':
 resources = root / 'build/desktop/resources'
 path = resources/'app'/spec['main']
 old = 'function P5(e){let t=uw(e.hostConfig);'
-new = 'function P5(e){let windowsTransport=require((0,p.join)(process.resourcesPath,`windows-ssh.cjs`)).createTransport(e,n.bn);if(windowsTransport)return windowsTransport;let t=uw(e.hostConfig);'
+new = 'function P5(e){let windowsTransport=require((0,p.join)(process.resourcesPath,`windows-ssh.cjs`)).createTransport(e,n.bn,()=>windowsSshOriginal(e));return windowsTransport??windowsSshOriginal(e)}function windowsSshOriginal(e){let t=uw(e.hostConfig);'
 text = path.read_text()
 if text.count(old) != 1:
     raise SystemExit('Unknown transport factory; refusing modification')

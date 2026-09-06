@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const {execFile} = require('node:child_process');
 
 function text(value, name) {
   if (typeof value !== 'string' || !value.trim() || /[\0\r\n]/.test(value))
@@ -68,18 +69,65 @@ function selectHost(hostConfig, settings) {
   }
   return null;
 }
-function createTransport(options, StdioTransport) {
-  const selected = selectHost(options.hostConfig, readSettings());
-  if (!selected) return null;
-  const command = buildCommand(selected.connection, selected.settings);
-  const delegate = new StdioTransport({...options,
-    hostConfig: {...options.hostConfig, codex_cli_command: command}});
-  // Use Desktop's framing, backpressure, approval routing, and RPC error handling.
-  // Reconnect creates a new SSH session; no RPC request is replayed by this adapter.
+function probe(command) {
+  return new Promise(resolve => execFile(command[0], command.slice(1),
+    {timeout: 15000, maxBuffer: 65536, encoding: 'utf8'},
+    (error, stdout) => resolve({ok: !error, stdout: stdout || ''})));
+}
+async function detectPlatform(connection, run = probe) {
+  const command = buildCommand(connection);
+  const prefix = command.slice(0, command.indexOf('--') + 2);
+  const script = "if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { [Console]::WriteLine('CODEX_SSH_WINDOWS_V1') } else { exit 2 }";
+  const windows = await run([...prefix, 'powershell.exe', '-NoLogo', '-NoProfile',
+    '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]);
+  if (windows.ok && windows.stdout.trim() === 'CODEX_SSH_WINDOWS_V1') return 'windows';
+  const unix = await run([...prefix, 'uname', '-s']);
+  if (unix.ok && /^(Linux|Darwin|FreeBSD|OpenBSD|NetBSD)$/.test(unix.stdout.trim())) return 'posix';
+  throw new Error('SSH OS detection failed. Verify SSH authentication and the remote shell, or explicitly configure windows/posix.');
+}
+function configuredPlatform(hostConfig, settings) {
+  const c = hostConfig.ssh_websocket_v0;
+  for (const key of [hostConfig.id, c?.sshAlias, c?.sshHost]) {
+    if (key && Object.hasOwn(settings.hosts, key)) return settings.hosts[key]?.platform;
+  }
+  return null;
+}
+function windowsDelegate(options, StdioTransport, selected) {
+  return new StdioTransport({...options, hostConfig: {...options.hostConfig,
+    codex_cli_command: buildCommand(selected.connection, selected.settings)}});
+}
+function createTransport(options, StdioTransport, originalFactory, detect = detectPlatform) {
+  if (options.hostConfig.kind !== 'ssh' || !options.hostConfig.ssh_websocket_v0) return null;
+  const settings = readSettings();
+  const selected = selectHost(options.hostConfig, settings);
+  if (configuredPlatform(options.hostConfig, settings) === 'posix') return null;
+  let platform = selected ? 'windows' : 'posix';
+  let delegate = selected ? windowsDelegate(options, StdioTransport, selected) : originalFactory?.();
+  if (!delegate) return null;
+  let fallbackAllowed = !selected;
+  // Keep the original sh bootstrap first. Only initial connection failures can fall back.
+  // RPC errors after connect never trigger transport replacement or request replay.
   return {
-    kind: 'stdio', supportsReconnect: () => true,
-    connect: () => delegate.connect(),
-    getIoStatsSnapshot: () => delegate.getIoStatsSnapshot(),
+    get kind() { return delegate.kind || 'stdio'; },
+    supportsReconnect: () => platform === 'windows' ? true : delegate.supportsReconnect(),
+    async connect() {
+      try { return await delegate.connect(); }
+      catch (originalError) {
+        if (!fallbackAllowed) throw originalError;
+        let detected;
+        try { detected = await detect(options.hostConfig.ssh_websocket_v0); }
+        catch { throw originalError; }
+        // macOS and Linux already use the original sh transport. Preserve its error.
+        if (detected !== 'windows') throw originalError;
+        platform = 'windows';
+        fallbackAllowed = false;
+        delegate = windowsDelegate(options, StdioTransport,
+          {connection: options.hostConfig.ssh_websocket_v0, settings: {}});
+        return delegate.connect();
+      }
+    },
+    getIoStatsSnapshot: () => delegate.getIoStatsSnapshot?.(),
   };
 }
-module.exports = {buildCommand, createTransport, readSettings, selectHost};
+
+module.exports = {buildCommand, createTransport, readSettings, selectHost, detectPlatform};

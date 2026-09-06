@@ -1,6 +1,6 @@
 # Windows SSH adapter
 
-Unofficial, opt-in transport for the Linux ChatGPT-Remote copy. Supported baseline:
+Unofficial transport for the Linux ChatGPT-Remote copy. Supported baseline:
 ChatGPT 26.901.41600. Windows integration was tested with Codex CLI 0.153.1 on
 September 6, 2026. Desktop GUI integration still needs validation after installation.
 
@@ -9,7 +9,17 @@ September 6, 2026. Desktop GUI integration still needs validation after installa
 ```bash
 python3 one-shot.py --windows-ssh --fetch-deps
 python3 scripts/configure-windows-ssh.py windows-workstation --enable-projects
+# Optional: force Windows directly and enable remote project visibility.
 ```
+
+With `--windows-ssh`, unconfigured hosts first use the existing sh transport.
+If initial connection fails, read-only PowerShell and uname probes identify the
+remote OS. A positive Windows result switches to the stdio adapter; macOS/Linux
+retain the original Unix transport and its error. Authentication or ambiguous
+probe failures preserve the original connection error. Successful selection lasts
+for the connection object. No submitted task is replayed.
+
+Explicit Windows configuration skips this first failed sh attempt.
 
 Replace `windows-workstation` with the exact SSH alias or destination you will add
 under Settings > Connections > SSH. For a discovered connection, use the displayed
@@ -50,9 +60,9 @@ or restore the backup if no subsequent settings need to be retained.
 ## Implementation
 
 `scripts/patch-windows-ssh.py` inserts one exact-match dispatch before `P5` selects
-the Unix SSH transport in `main-C5K7o1Hr.js`. `src/windows-ssh.cjs` selects only
-explicitly configured hosts and delegates to Desktop's existing `n.bn` stdio
-transport from `src-VqXTPopo.js`. Existing Unix SSH hosts retain their original path.
+the Unix SSH transport in `main-C5K7o1Hr.js`. `src/windows-ssh.cjs` selects explicitly configured Windows hosts or positively
+identified Windows hosts after a failed sh connection, and delegates to Desktop's existing `n.bn` stdio
+transport from `src-VqXTPopo.js`. Successful Unix SSH connections retain their original path without probing.
 
 The Windows command uses UTF-16LE encoded PowerShell with UTF-8 protocol streams:
 

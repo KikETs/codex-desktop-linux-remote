@@ -49,3 +49,35 @@ test('Desktop adapter delegates the protocol unchanged and permits reconnect wit
     fs.rmSync(tmp,{recursive:true,force:true});
   }
 });
+test('Original sh transport runs first; only failed initialization falls back to confirmed Windows', async () => {
+  const order=[];
+  const original={kind:'websocket',supportsReconnect:()=>true,connect:async()=>{order.push('sh');throw Error('sh unavailable')}};
+  class Windows {kind='stdio';async connect(){order.push('windows');return 'connected'}}
+  const transport=createTransport({hostConfig:{kind:'ssh',ssh_websocket_v0:{sshHost:'automatic-test.invalid'}}},Windows,()=>original,async()=>{order.push('detect');return 'windows'});
+  assert.equal(await transport.connect(),'connected');
+  assert.deepEqual(order,['sh','detect','windows']);
+  await transport.connect();
+  assert.deepEqual(order,['sh','detect','windows','windows']);
+});
+test('Successful sh skips detection; Unix and uncertain failures preserve the original error', async () => {
+  const options={hostConfig:{kind:'ssh',ssh_websocket_v0:{sshHost:'automatic-test.invalid'}}};
+  const error=Error('original failure');
+  const original={kind:'websocket',supportsReconnect:()=>true,connect:async()=>42};
+  const t=createTransport(options,class{},()=>original,async()=>{throw Error('should not probe')});
+  assert.equal(await t.connect(),42);
+  original.connect=async()=>{throw error};
+  for(const detect of [async()=> 'posix',async()=>{throw Error('authentication failed')}]){
+    const t=createTransport(options,class{},()=>original,detect);
+    await assert.rejects(t.connect(),e=>e===error);
+  }
+});
+test('OS probe requires a successful positive response and preserves SSH verification', async () => {
+  const {detectPlatform}=require('../src/windows-ssh.cjs');
+  assert.equal(await detectPlatform({sshHost:'test'},async command=>{
+    assert(command.includes('StrictHostKeyChecking=yes'));
+    return {ok:true,stdout:'CODEX_SSH_WINDOWS_V1\r\n'};
+  }),'windows');
+  let calls=0;
+  assert.equal(await detectPlatform({sshHost:'test'},async()=>++calls===1?{ok:false,stdout:''}:{ok:true,stdout:'Darwin\n'}),'posix');
+  await assert.rejects(detectPlatform({sshHost:'test'},async()=>({ok:false,stdout:'CODEX_SSH_WINDOWS_V1'})),/detection failed/);
+});

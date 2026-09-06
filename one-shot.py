@@ -80,7 +80,7 @@ def main():
     with deb.open('rb') as stream:
         deb_hash = hashlib.file_digest(stream, 'sha256').hexdigest()
     result = {'deb': str(deb), 'sha256': deb_hash, 'officialAsarSha256': digest,
-              'tests': {'tpmSimulator': 7, 'windowsSshUnit': 3 if args.windows_ssh else 0},
+              'tests': {'tpmSimulator': 7, 'windowsSshUnit': 6 if args.windows_ssh else 0},
               'windowsSshIncluded': args.windows_ssh, 'hardwareAndGuiValidated': False}
     (workspace / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, indent=2), flush=True)
