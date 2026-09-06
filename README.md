@@ -1,8 +1,7 @@
 # ChatGPT-Remote for Linux
 
-Build a separate Linux Remote Controller development package from an installed
-official ChatGPT app. This is not an official OpenAI distribution. The build does
-not overwrite the official app or copy its login profile.
+Unofficial Linux Remote Controller build based on the installed ChatGPT app.
+It uses a separate installation and login profile.
 
 Current baseline: **ChatGPT `26.901.41600` → `chatgpt-remote 26.901.41600+remote.5`**.
 Build and simulator checks were completed on September 6, 2026. See the validation

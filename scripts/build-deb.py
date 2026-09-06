@@ -118,7 +118,7 @@ Maintainer: Local Development <local@localhost>
 Depends: {dependencies}
 Description: ChatGPT-Remote local development build
  Separate development installation with Linux TPM device key support.
- Not an official OpenAI distribution. Remote connectivity is unverified.
+ Unofficial build. Remote connectivity is unverified.
 ''')
 write('DEBIAN/postinst', '''#!/bin/sh
 set -e
