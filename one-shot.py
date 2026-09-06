@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--install', action='store_true', help='Install the verified local deb using sudo; does not alter TPM permissions')
     parser.add_argument('--fetch-deps', action='store_true', help='Download Ubuntu TPM development and simulator packages into the build workspace only')
     parser.add_argument('--check', action='store_true', help='Read-only compatibility and tool check')
+    parser.add_argument('--windows-ssh', action='store_true', help='Include the opt-in Windows SSH stdio adapter (26.901.41600 only)')
     args = parser.parse_args()
     if os.geteuid() == 0:
         parser.error('Run as the desktop user, not sudo. Only --install invokes sudo.')
@@ -34,6 +35,8 @@ def main():
                       'asarSha256': digest, 'supported': digest in BUILDS and arch == 'amd64'}, indent=2), flush=True)
     if digest not in BUILDS or arch != 'amd64':
         parser.error('Unsupported official build. Re-audit and add a reviewed adapter; do not replace the hash alone.')
+    if args.windows_ssh and BUILDS[digest]['version'] != '26.901.41600':
+        parser.error('Windows SSH requires 26.901.41600')
     required = ['g++', 'node', 'dpkg-deb', 'apparmor_parser', 'desktop-file-validate', 'cp']
     missing = [name for name in required if shutil.which(name) is None]
     if missing:
@@ -61,9 +64,14 @@ def main():
     else:
         parser.error('TPM headers/simulator missing. Re-run with --fetch-deps (local extraction only).')
     run('bash', 'scripts/build.sh', cwd=workspace)
-    for script in ['prepare-copy.py', 'force-controller-ui.py', 'patch-return-link.py', 'repack-copy.py', 'verify-copy.py']:
+    steps = ['prepare-copy.py', 'force-controller-ui.py', 'patch-return-link.py']
+    if args.windows_ssh:
+        steps.append('patch-windows-ssh.py')
+    for script in steps + ['repack-copy.py', 'verify-copy.py']:
         run('python3', 'scripts/' + script, cwd=workspace)
     run('node', '--test', 'test/provider.test.cjs', cwd=workspace)
+    if args.windows_ssh:
+        run('node', '--test', 'test/windows-ssh.test.cjs', cwd=workspace)
     run('node', '--check', 'build/desktop/resources/app/' + BUILDS[digest]['renderer'], cwd=workspace)
     run('python3', 'scripts/build-deb.py', cwd=workspace)
     deb, = (workspace / 'build').glob('chatgpt-remote_*.deb')
@@ -72,7 +80,8 @@ def main():
     with deb.open('rb') as stream:
         deb_hash = hashlib.file_digest(stream, 'sha256').hexdigest()
     result = {'deb': str(deb), 'sha256': deb_hash, 'officialAsarSha256': digest,
-              'tests': '7 simulator tests passed', 'hardwareAndGuiValidated': False}
+              'tests': {'tpmSimulator': 7, 'windowsSshUnit': 3 if args.windows_ssh else 0},
+              'windowsSshIncluded': args.windows_ssh, 'hardwareAndGuiValidated': False}
     (workspace / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, indent=2), flush=True)
     if args.install:

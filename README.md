@@ -3,7 +3,7 @@
 Unofficial Linux Remote Controller build based on the installed ChatGPT app.
 It uses a separate installation and login profile.
 
-Current baseline: **ChatGPT `26.901.41600` → `chatgpt-remote 26.901.41600+remote.5`**.
+Current baseline: **ChatGPT `26.901.41600` → `chatgpt-remote 26.901.41600+remote.6`**.
 Build and simulator checks were completed on September 6, 2026. See the validation
 section for the limits of that testing.
 
@@ -79,7 +79,8 @@ not change TPM access permissions automatically.
   The Chromium sandbox remains enabled.
 
 Some internal product labels retain the original name. Synchronizing the host's
-project list and exposing the remote project selection UI remain unresolved.
+project list remains unresolved. The optional [Windows SSH adapter](WINDOWS-SSH.md)
+includes configuration for the existing remote project selection UI.
 Displaying a button does not grant server access.
 
 ## Validation and output
@@ -90,7 +91,11 @@ contents, JavaScript syntax, seven swtpm tests including the actual Desktop key
 wrapper, and an APT installation simulation. Each run records its output path and
 hashes in `result.json`.
 
-On September 6, 2026, the full `26.901.41600+remote.5` build, seven tests, and
+The optional `--windows-ssh` build adds three adapter unit tests and an explicit
+per-host transport selection. Live Windows protocol checks and GUI validation
+limits are recorded in [WINDOWS-SSH.md](WINDOWS-SSH.md).
+
+On September 6, 2026, the full `26.901.41600+remote.6` build, seven tests, and
 installation simulation passed. That build was not installed during validation;
 its GUI and live remote behavior remain unverified. Authorization, TPM signing,
 and remote connection logs were previously observed with
