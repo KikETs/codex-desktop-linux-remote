@@ -3,7 +3,7 @@
 Unofficial Linux Remote Controller build based on the installed ChatGPT app.
 It uses a separate installation and login profile.
 
-Current baseline: **ChatGPT `26.901.41600` → `chatgpt-remote 26.901.41600+remote.7`**.
+Current baseline: **ChatGPT `26.901.41600` → `chatgpt-remote 26.901.41600+remote.8`**.
 Build and simulator checks were completed on September 6, 2026. See the validation
 section for the limits of that testing.
 
@@ -83,6 +83,20 @@ project list remains unresolved. The optional [Windows SSH adapter](WINDOWS-SSH.
 includes configuration for the existing remote project selection UI.
 Displaying a button does not grant server access.
 
+## Remote icon and notification identity
+
+The Remote icon has a large red C in the center. Apply the user-level launcher
+icon without reinstalling the package:
+
+```bash
+python3 scripts/install-user-icon.py
+```
+
+The 26.901.41600 package also adds `[Remote]` to native notification titles and
+supplies the Remote icon. Notification ownership filtering is not implemented:
+this branding identifies the sender and does not suppress alerts. The generated
+icon is stored in `src/chatgpt-remote.png`.
+
 ## Validation and output
 
 Each run creates a fresh workspace under `build/runs/`, preserving previous results.
@@ -95,7 +109,7 @@ The optional `--windows-ssh` build adds six adapter unit tests, sh-first Windows
 per-host transport override. Live Windows protocol checks and GUI validation
 limits are recorded in [WINDOWS-SSH.md](WINDOWS-SSH.md).
 
-On September 6, 2026, the full `26.901.41600+remote.7` build, seven TPM tests, six SSH tests, and
+On September 6, 2026, the full `26.901.41600+remote.8` build, seven TPM tests, six SSH tests, and
 installation simulation passed. That build was not installed during validation;
 its GUI and live remote behavior remain unverified. Authorization, TPM signing,
 and remote connection logs were previously observed with

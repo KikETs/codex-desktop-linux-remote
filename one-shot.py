@@ -64,7 +64,7 @@ def main():
     else:
         parser.error('TPM headers/simulator missing. Re-run with --fetch-deps (local extraction only).')
     run('bash', 'scripts/build.sh', cwd=workspace)
-    steps = ['prepare-copy.py', 'force-controller-ui.py', 'patch-return-link.py']
+    steps = ['prepare-copy.py', 'force-controller-ui.py', 'patch-return-link.py', 'patch-notification-branding.py']
     if args.windows_ssh:
         steps.append('patch-windows-ssh.py')
     for script in steps + ['repack-copy.py', 'verify-copy.py']:

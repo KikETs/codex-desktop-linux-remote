@@ -48,6 +48,10 @@ for name, value in entries(header['files']):
             assert restored.encode() == before
             continue
         assert name == spec['main']
+        if manifest.get('notificationBrandingPatch'):
+            old, new = manifest['notificationBrandingPatch']
+            assert after.count(new.encode()) == 1
+            after = after.replace(new.encode(), old.encode(), 1)
         if manifest.get('windowsSshPatch'):
             old, new = manifest['windowsSshPatch']
             assert after.count(new.encode()) == 1

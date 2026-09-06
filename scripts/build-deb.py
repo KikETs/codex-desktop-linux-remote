@@ -10,7 +10,7 @@ root = Path(__file__).resolve().parents[1]
 source = root / 'build/desktop'
 from compat import installed
 _, spec = installed()
-version = spec['version'] + '+remote.7'
+version = spec['version'] + '+remote.8'
 stage = root / f'build/deb-root-{version}'
 output = root / f'build/chatgpt-remote_{version}_amd64.deb'
 if stage.exists() or output.exists():
@@ -81,7 +81,8 @@ Categories=Development;
 ''')
 icon = stage / 'usr/share/pixmaps/chatgpt-remote.png'
 icon.parent.mkdir(parents=True, exist_ok=True)
-shutil.copyfile(source / 'resources/icon-chatgpt.png', icon)
+shutil.copyfile(root / 'src/chatgpt-remote.png', icon)
+shutil.copyfile(root / 'src/chatgpt-remote.png', target / 'resources/icon-chatgpt.png')
 write('etc/apparmor.d/chatgpt-remote', '''abi <abi/4.0>,
 include <tunables/global>
 profile chatgpt-remote "/opt/chatgpt-remote/ChatGPT" flags=(unconfined) {
