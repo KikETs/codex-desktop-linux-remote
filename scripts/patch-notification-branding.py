@@ -6,12 +6,14 @@ from compat import installed
 
 root = Path(__file__).resolve().parents[1]
 _, spec = installed()
-if spec['version'] != '26.901.41600':
+if spec['version'] not in ('26.901.41600', '26.924.22138'):
     print('Native notification branding is only reviewed for 26.901.41600')
     raise SystemExit(0)
 path = root/'build/desktop/resources/app'/spec['main']
 old = 'let t=new l.Notification(e);return{show:()=>t.show()'
 new = 'let t=new l.Notification({...e,title:`[Remote] ${e.title??``}`,icon:(0,p.join)(process.resourcesPath,`icon-chatgpt.png`)});return{show:()=>t.show()'
+old = old.replace('l.Notification', spec.get('electron_alias', 'l') + '.Notification')
+new = new.replace('l.Notification', spec.get('electron_alias', 'l') + '.Notification').replace('(0,p.join)', '(0,' + spec.get('path_alias', 'p') + '.join)')
 source = path.read_text()
 if source.count(old) != 1:
     raise SystemExit('Unknown native notification factory; refusing modification')

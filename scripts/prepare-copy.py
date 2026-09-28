@@ -61,11 +61,11 @@ for name, item in entries(header['files']):
 f.close()
 main = app / spec['main']
 source = main.read_text()
-needle = 'getAddon(){if(process.platform!==`darwin`&&process.platform!==`win32`)throw Error(`Remote control device keys are only available on macOS and Windows`);'
+needle = spec.get('key_needle') or 'getAddon(){if(process.platform!==`darwin`&&process.platform!==`win32`)throw Error(`Remote control device keys are only available on macOS and Windows`);'
 if source.count(needle) != 1:
     raise SystemExit('Device key insertion point is not unique; refusing modification')
 replacement = 'getAddon(){if(process.platform===`linux`){if(this.resourcesPath==null)throw Error(`Linux device keys require resourcesPath`);return this.addon??=Xke((0,p.join)(this.resourcesPath,`linux-device-key.cjs`))}' + needle[len('getAddon(){'):]
-replacement = replacement.replace('Xke(', spec['loader'] + '(')
+replacement = replacement.replace('Xke(', spec['loader'] + '(').replace('(0,p.join)', '(0,' + spec.get('path_alias', 'p') + '.join)')
 main.write_text(source.replace(needle, replacement))
 shutil.copy2(ROOT / 'src/device-key.cjs', resources / 'linux-device-key-provider.cjs')
 shutil.copy2(ROOT / 'src/desktop-adapter.cjs', resources / 'linux-device-key.cjs')

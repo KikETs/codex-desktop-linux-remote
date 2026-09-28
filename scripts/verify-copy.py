@@ -63,6 +63,7 @@ for name, value in entries(header['files']):
         prefix = b'getAddon(){'
         insertion = b'if(process.platform===`linux`){if(this.resourcesPath==null)throw Error(`Linux device keys require resourcesPath`);return this.addon??=Xke((0,p.join)(this.resourcesPath,`linux-device-key.cjs`))}'
         insertion = insertion.replace(b'Xke(', (spec['loader'] + '(').encode())
+        insertion = insertion.replace(b'(0,p.join)', ('(0,' + spec.get('path_alias', 'p') + '.join)').encode())
         assert after.replace(prefix + insertion, prefix, 1) == before
 assert set(modified) == {spec['main']} | ({ui['file']} if ui else set())
 result = {'originalAsarUnchanged': True, 'runtimeByteIdentical': True,

@@ -100,7 +100,7 @@ test('actual Desktop key wrapper produces a verifiable domain-bound signature', 
   const mainDir = path.join(root, 'build/desktop/resources/app/.vite/build');
   const mainName = fs.readdirSync(mainDir).find(n => /^main-.*\.js$/.test(n));
   const bundle = fs.readFileSync(path.join(mainDir, mainName), 'utf8');
-  const match = /var (\w+)=\(0,F\.createRequire\)\(__filename\),\w+=`remote-control-device-key\.node`/.exec(bundle);
+  const match = /var (\w+)=\(0,(\w+)\.createRequire\)\(__filename\),\w+=`remote-control-device-key\.node`/.exec(bundle);
   assert(match);
   const begin = match.index, end = bundle.indexOf('var ', begin + 4);
   const className = /,(\w+)=class\{resourcesPath;addon=null/.exec(bundle.slice(begin, end))[1];
@@ -110,6 +110,9 @@ test('actual Desktop key wrapper produces a verifiable domain-bound signature', 
       assert.equal(target, '/development-resources/linux-device-key.cjs');
       return provider;
     }}};
+  context[match[2]] = context.F;
+  const pathAlias = /\(0,(\w+)\.join\)\(this.resourcesPath,`linux-device-key.cjs`\)/.exec(bundle.slice(begin, end))[1];
+  context[pathAlias] = context.p;
   const Wrapper = vm.runInNewContext(bundle.slice(begin, end) + ';' + className, context);
   const wrapper = new Wrapper('/development-resources');
   const key = await wrapper.createDeviceKey('allow_os_protected_nonextractable');

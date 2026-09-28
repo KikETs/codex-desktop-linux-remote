@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--install', action='store_true', help='Install the verified local deb using sudo; does not alter TPM permissions')
     parser.add_argument('--fetch-deps', action='store_true', help='Download Ubuntu TPM development and simulator packages into the build workspace only')
     parser.add_argument('--check', action='store_true', help='Read-only compatibility and tool check')
-    parser.add_argument('--windows-ssh', action='store_true', help='Include the opt-in Windows SSH stdio adapter (26.901.41600 only)')
+    parser.add_argument('--windows-ssh', action='store_true', help='Include the opt-in Windows SSH stdio adapter (reviewed builds only)')
     args = parser.parse_args()
     if os.geteuid() == 0:
         parser.error('Run as the desktop user, not sudo. Only --install invokes sudo.')
@@ -35,8 +35,8 @@ def main():
                       'asarSha256': digest, 'supported': digest in BUILDS and arch == 'amd64'}, indent=2), flush=True)
     if digest not in BUILDS or arch != 'amd64':
         parser.error('Unsupported official build. Re-audit and add a reviewed adapter; do not replace the hash alone.')
-    if args.windows_ssh and BUILDS[digest]['version'] != '26.901.41600':
-        parser.error('Windows SSH requires 26.901.41600')
+    if args.windows_ssh and BUILDS[digest]['version'] not in ('26.901.41600', '26.924.22138'):
+        parser.error('Windows SSH requires a reviewed transport adapter')
     required = ['g++', 'node', 'dpkg-deb', 'apparmor_parser', 'desktop-file-validate', 'cp']
     missing = [name for name in required if shutil.which(name) is None]
     if missing:

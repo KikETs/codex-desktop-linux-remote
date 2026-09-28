@@ -1,7 +1,7 @@
 # Windows SSH adapter
 
 Unofficial transport for the Linux ChatGPT-Remote copy. Supported baseline:
-ChatGPT 26.901.41600. Windows integration was tested with Codex CLI 0.153.1 on
+ChatGPT 26.901.41600 and 26.924.22138. Windows integration was tested with Codex CLI 0.153.1 on
 September 6, 2026. Desktop GUI integration still needs validation after installation.
 
 ## Build and configure
@@ -104,3 +104,21 @@ Protocol tests do not establish that every Desktop screen works. After installin
 check connection creation, project selection, file preview/diff, approval display,
 app restart, and unchanged Linux SSH operation. Recheck the bundle factory and
 transport contract before supporting another official version.
+
+## September 28 compatibility review
+
+For 26.924.22138, the factory is `U5` in `main-C5425b_s.js`; its existing
+stdio implementation is `a.h` from `application-network-startup-CY4ZWOz-.js`.
+The SSH configuration and `codex_cli_command` contracts remain compatible.
+The exact source hash and replacement anchors are recorded in `scripts/compat.py`.
+
+The official package now includes a Linux device-key native module and no longer
+has the former macOS/Windows-only loader guard. This build retains the existing
+custom TPM provider to preserve access to Remote's existing key records. Native
+modules remain unchanged. Both signing challenge types and the domain-bound
+payload remain in the official wrapper; its signature tests pass on the new code.
+
+The new official CLI reports 0.158.0-alpha.2.1. This update was verified with seven
+TPM simulator tests, six SSH unit tests, exact reverse-patch comparisons, and APT
+transaction simulation. Live GUI, hardware TPM, and Windows host execution were
+not repeated for this baseline.

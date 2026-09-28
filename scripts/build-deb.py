@@ -10,7 +10,7 @@ root = Path(__file__).resolve().parents[1]
 source = root / 'build/desktop'
 from compat import installed
 _, spec = installed()
-version = spec['version'] + '+remote.8'
+version = spec['version'] + '+remote.9'
 stage = root / f'build/deb-root-{version}'
 output = root / f'build/chatgpt-remote_{version}_amd64.deb'
 if stage.exists() or output.exists():
