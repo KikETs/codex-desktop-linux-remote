@@ -1,7 +1,7 @@
 # Windows SSH adapter
 
 Unofficial transport for the Linux ChatGPT-Remote copy. Supported baseline:
-ChatGPT 26.901.41600 and 26.924.22138. Windows integration was tested with Codex CLI 0.153.1 on
+ChatGPT 26.901.41600, 26.924.22138, and 26.928.20755. Windows integration was tested with Codex CLI 0.153.1 on
 September 6, 2026. Desktop GUI integration still needs validation after installation.
 
 ## Build and configure
@@ -122,3 +122,23 @@ The new official CLI reports 0.158.0-alpha.2.1. This update was verified with se
 TPM simulator tests, six SSH unit tests, exact reverse-patch comparisons, and APT
 transaction simulation. Live GUI, hardware TPM, and Windows host execution were
 not repeated for this baseline.
+
+## September 30 compatibility review
+
+For 26.928.20755, the factory is `G5` in `main-DPn4U9E8.js`; its existing
+stdio implementation is `o.h` (`Hs`) from `application-network-startup-D74LEWDz.js`.
+It still accepts `hostConfig.codex_cli_command` as an executable and argument
+array, and applies local configuration overrides only to local hosts. The
+Windows adapter therefore continues to reuse the official framing and connection
+implementation. The bundled CLI reports `0.159.0`.
+
+The key loader is `sWe`; the TPM adapter continues to preserve existing Remote key
+records. Both signing challenge types and their validation remain unchanged.
+The renderer visibility anchors, return link, and notification factory were
+reviewed again; exact replacements and the original ASAR hash are recorded in
+`scripts/compat.py`.
+
+The `26.928.20755+remote.10` build passed seven TPM simulator tests, six SSH unit
+tests, exact reverse-patch comparisons, and an APT installation simulation.
+Live GUI, hardware TPM, and Windows host execution were not repeated for this
+baseline. Existing saved connection settings are preserved during installation.

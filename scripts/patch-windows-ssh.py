@@ -7,8 +7,8 @@ from compat import installed
 
 root = Path(__file__).resolve().parents[1]
 _, spec = installed()
-if spec['version'] not in ('26.901.41600', '26.924.22138'):
-    raise SystemExit('Windows SSH adapter currently requires 26.901.41600')
+if spec['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755'):
+    raise SystemExit('Windows SSH adapter requires a reviewed transport factory')
 resources = root / 'build/desktop/resources'
 path = resources/'app'/spec['main']
 old = 'function P5(e){let t=uw(e.hostConfig);'

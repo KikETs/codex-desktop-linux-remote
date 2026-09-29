@@ -35,7 +35,7 @@ def main():
                       'asarSha256': digest, 'supported': digest in BUILDS and arch == 'amd64'}, indent=2), flush=True)
     if digest not in BUILDS or arch != 'amd64':
         parser.error('Unsupported official build. Re-audit and add a reviewed adapter; do not replace the hash alone.')
-    if args.windows_ssh and BUILDS[digest]['version'] not in ('26.901.41600', '26.924.22138'):
+    if args.windows_ssh and BUILDS[digest]['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755'):
         parser.error('Windows SSH requires a reviewed transport adapter')
     required = ['g++', 'node', 'dpkg-deb', 'apparmor_parser', 'desktop-file-validate', 'cp']
     missing = [name for name in required if shutil.which(name) is None]

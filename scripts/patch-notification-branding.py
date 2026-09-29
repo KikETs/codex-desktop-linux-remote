@@ -6,8 +6,8 @@ from compat import installed
 
 root = Path(__file__).resolve().parents[1]
 _, spec = installed()
-if spec['version'] not in ('26.901.41600', '26.924.22138'):
-    print('Native notification branding is only reviewed for 26.901.41600')
+if spec['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755'):
+    print('Native notification branding is unavailable for this reviewed baseline')
     raise SystemExit(0)
 path = root/'build/desktop/resources/app'/spec['main']
 old = 'let t=new l.Notification(e);return{show:()=>t.show()'
