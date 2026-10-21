@@ -35,7 +35,7 @@ def main():
                       'asarSha256': digest, 'supported': digest in BUILDS and arch == 'amd64'}, indent=2), flush=True)
     if digest not in BUILDS or arch != 'amd64':
         parser.error('Unsupported official build. Re-audit and add a reviewed adapter; do not replace the hash alone.')
-    if args.windows_ssh and BUILDS[digest]['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755'):
+    if args.windows_ssh and BUILDS[digest]['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755', '26.1016.51333'):
         parser.error('Windows SSH requires a reviewed transport adapter')
     required = ['g++', 'node', 'dpkg-deb', 'apparmor_parser', 'desktop-file-validate', 'cp']
     missing = [name for name in required if shutil.which(name) is None]
@@ -72,7 +72,8 @@ def main():
     run('node', '--test', 'test/provider.test.cjs', cwd=workspace)
     if args.windows_ssh:
         run('node', '--test', 'test/windows-ssh.test.cjs', cwd=workspace)
-    run('node', '--check', 'build/desktop/resources/app/' + BUILDS[digest]['renderer'], cwd=workspace)
+    for bundle in ('main', 'renderer'):
+        run('node', '--check', 'build/desktop/resources/app/' + BUILDS[digest][bundle], cwd=workspace)
     run('python3', 'scripts/build-deb.py', cwd=workspace)
     deb, = (workspace / 'build').glob('chatgpt-remote_*.deb')
     run('desktop-file-validate', str(next((workspace / 'build').glob('deb-root-*/usr/share/applications/chatgpt-remote.desktop'))))

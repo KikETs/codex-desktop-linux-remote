@@ -1,7 +1,8 @@
 # Windows SSH adapter
 
 Unofficial transport for the Linux ChatGPT-Remote copy. Supported baseline:
-ChatGPT 26.901.41600, 26.924.22138, and 26.928.20755. Windows integration was tested with Codex CLI 0.153.1 on
+ChatGPT 26.901.41600, 26.924.22138, 26.928.20755, and 26.1016.51333.
+Windows integration was tested with Codex CLI 0.153.1 on
 September 6, 2026. Desktop GUI integration still needs validation after installation.
 
 ## Build and configure
@@ -142,3 +143,29 @@ The `26.928.20755+remote.10` build passed seven TPM simulator tests, six SSH uni
 tests, exact reverse-patch comparisons, and an APT installation simulation.
 Live GUI, hardware TPM, and Windows host execution were not repeated for this
 baseline. Existing saved connection settings are preserved during installation.
+
+## October 21 compatibility review
+
+For 26.1016.51333, the factory is `L5` in `main-JI9qDiXp.js`; the existing
+stdio implementation is `l._` (`Ks`) from `application-network-startup-BG13czUt.js`.
+The `hostConfig.codex_cli_command` executable/argument array and local-only
+configuration overrides remain compatible with the Windows SSH adapter.
+The bundled CLI reports `0.163.0-alpha.11`.
+
+The device-key wrapper uses loader `VJe`. Its create/delete/public/sign interface,
+domain-bound payload, and both challenge validations are preserved. The Remote
+copy retains its TPM provider and existing key records; all 34 original native
+modules and the original Electron executable remain byte-identical.
+
+The native notification factory now returns the Electron notification directly.
+The branding patch targets that constructor while retaining its event and close
+behavior. Controller visibility and the post-authorization return link were
+reviewed against the new renderer and main bundle. Exact source anchors and the
+official ASAR digest are recorded in `scripts/compat.py`.
+
+The `26.1016.51333+remote.11` build passed seven TPM simulator tests (including
+the actual new Desktop key wrapper), six SSH unit tests, main/renderer syntax
+checks, exact reverse-patch comparisons, and an APT installation simulation.
+Only the Remote package is upgraded in that simulation. Installation and live
+GUI, hardware TPM, and Windows host checks remain separate validation steps.
+Saved connection settings and profiles are preserved.

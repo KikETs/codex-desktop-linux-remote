@@ -41,6 +41,18 @@ BUILDS = {
          ('remoteControlConnectionsAuthRequired:Ze,showRemoteControlConnectionsSection:we}', 'remoteControlConnectionsAuthRequired:Ze,showRemoteControlConnectionsSection:!0}'),
          ('showControlThisMacTab:dt,showRemoteControlConnectionsSection:we,', 'showControlThisMacTab:dt,showRemoteControlConnectionsSection:!0,')]},
 
+ '7bb9800c449691ea744186b91e35dca478dfd7d37cc2a0d08297cff33026ce38': {
+  'version': '26.1016.51333', 'main': '.vite/build/main-JI9qDiXp.js',
+  'renderer': 'webview/assets/remote-connections-settings-c67a7c296866.js',
+  'loader': 'VJe', 'return': 'y3', 'path_alias': 'C', 'electron_alias': 'O',
+  'ssh_factory': 'L5', 'ssh_selector': 'L$e', 'stdio': 'l._',
+  'notification_factory': 'direct',
+  'key_needle': 'getAddon(){if(this.resourcesPath==null)throw Error(`Remote control device keys require resourcesPath`);',
+  'ui': [('Ce=Gr(),W=!g,we=', 'Ce=Gr(),W=!0,we='),
+         ('Ze=W&&(Ce||!1),$e=', 'Ze=!0,$e='),
+         ('remoteControlConnectionsAuthRequired:Be,showRemoteControlConnectionsSection:Ce}', 'remoteControlConnectionsAuthRequired:Be,showRemoteControlConnectionsSection:!0}'),
+         ('showControlThisMacTab:Xe,showRemoteControlConnectionsSection:Ce,', 'showControlThisMacTab:Xe,showRemoteControlConnectionsSection:!0,')]},
+
 }
 
 def installed():

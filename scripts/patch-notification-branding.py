@@ -6,12 +6,15 @@ from compat import installed
 
 root = Path(__file__).resolve().parents[1]
 _, spec = installed()
-if spec['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755'):
+if spec['version'] not in ('26.901.41600', '26.924.22138', '26.928.20755', '26.1016.51333'):
     print('Native notification branding is unavailable for this reviewed baseline')
     raise SystemExit(0)
 path = root/'build/desktop/resources/app'/spec['main']
 old = 'let t=new l.Notification(e);return{show:()=>t.show()'
 new = 'let t=new l.Notification({...e,title:`[Remote] ${e.title??``}`,icon:(0,p.join)(process.resourcesPath,`icon-chatgpt.png`)});return{show:()=>t.show()'
+if spec.get('notification_factory') == 'direct':
+    old = 'this.createNotification=e.createNotification??(e=>new l.Notification(e))'
+    new = 'this.createNotification=e.createNotification??(e=>new l.Notification({...e,title:`[Remote] ${e.title??``}`,icon:(0,p.join)(process.resourcesPath,`icon-chatgpt.png`)}))'
 old = old.replace('l.Notification', spec.get('electron_alias', 'l') + '.Notification')
 new = new.replace('l.Notification', spec.get('electron_alias', 'l') + '.Notification').replace('(0,p.join)', '(0,' + spec.get('path_alias', 'p') + '.join)')
 source = path.read_text()

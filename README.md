@@ -3,8 +3,8 @@
 Unofficial Linux Remote Controller build based on the installed ChatGPT app.
 It uses a separate installation and login profile.
 
-Current baseline: **ChatGPT `26.928.20755` → `chatgpt-remote 26.928.20755+remote.10`**.
-Build and simulator checks were completed on September 30, 2026. See the validation
+Current baseline: **ChatGPT `26.1016.51333` → `chatgpt-remote 26.1016.51333+remote.11`**.
+Build and simulator checks were completed on October 21, 2026. See the validation
 section for the limits of that testing.
 
 ```bash
@@ -31,7 +31,8 @@ installation. Close the app, then install the generated package using the path
 printed by the script. The script does not update the official ChatGPT app.
 
 Supported environment: Ubuntu 24.04 amd64 and the reviewed ASAR hashes for official
-versions `26.901.20858`, `26.901.41600`, `26.924.22138`, and `26.928.20755`. Unknown versions or hashes are rejected
+versions `26.901.20858`, `26.901.41600`, `26.924.22138`, `26.928.20755`, and
+`26.1016.51333`. Unknown versions or hashes are rejected
 without modifying the original app. See [UPDATING.md](UPDATING.md) before adding
 support for another release. Compatibility with every future release is not guaranteed.
 
@@ -92,8 +93,9 @@ icon without reinstalling the package:
 python3 scripts/install-user-icon.py
 ```
 
-The reviewed 26.901.41600, 26.924.22138, and 26.928.20755 packages also add `[Remote]` to native notification titles and
-supply the Remote icon. Notification ownership filtering is not implemented:
+The reviewed 26.901.41600, 26.924.22138, 26.928.20755, and 26.1016.51333 packages
+also add `[Remote]` to native notification titles and supply the Remote icon.
+Notification ownership filtering is not implemented:
 this branding identifies the sender and does not suppress alerts. The generated
 icon is stored in `src/chatgpt-remote.png`.
 
@@ -109,7 +111,7 @@ The optional `--windows-ssh` build adds six adapter unit tests, sh-first Windows
 per-host transport override. Live Windows protocol checks and GUI validation
 limits are recorded in [WINDOWS-SSH.md](WINDOWS-SSH.md).
 
-On September 30, 2026, the full `26.928.20755+remote.10` build, seven TPM tests, six SSH tests, and
+On October 21, 2026, the full `26.1016.51333+remote.11` build, seven TPM tests, six SSH tests, and
 installation simulation passed. That build was not installed during validation;
 its GUI and live remote behavior remain unverified. Authorization, TPM signing,
 and remote connection logs were previously observed with
