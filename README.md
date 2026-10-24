@@ -3,6 +3,12 @@
 Unofficial Linux Remote Controller build based on the installed ChatGPT app.
 It uses a separate installation and login profile.
 
+For **Windows SSH using the official Desktop without patching or rebuilding it**,
+see [Windows host compatibility](windows-host-compat/README.md). That adapter runs
+on the Windows host and uses a dedicated SSH connection. It was verified with the
+official Linux Desktop on October 24, 2026. The custom Remote build below remains
+a separate option for its other changes.
+
 Current baseline: **ChatGPT `26.1016.51333` → `chatgpt-remote 26.1016.51333+remote.11`**.
 Build and simulator checks were completed on October 21, 2026. See the validation
 section for the limits of that testing.

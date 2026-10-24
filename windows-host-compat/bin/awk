@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+# Reproduce Desktop's Linux loopback-listener check using the Windows TCP table.
+if [[ $# == 3 && "$2" == /proc/net/tcp && "$3" == /proc/net/tcp6 ]]; then
+  root="$CODEX_SSH_COMPAT_ROOT"
+  python_path=$(cat "$root/python-path.txt")
+  exec "$python_path" -u "$(cygpath -w "$root/manager.py")" listeners "$1"
+fi
+exec /usr/bin/awk "$@"

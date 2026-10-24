@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+# Preserve the compatibility environment through Desktop's login-shell bootstrap.
+while [[ $# -gt 0 ]]; do
+  case "$1" in -l|--login|-i|--interactive) shift;; *) break;; esac
+done
+exec /usr/bin/bash --noprofile --norc "$@"

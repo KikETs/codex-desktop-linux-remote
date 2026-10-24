@@ -1,0 +1,8 @@
+*.exe
+*.dll
+*.pdb
+client.pub
+settings.json
+state/
+socket/
+*.log

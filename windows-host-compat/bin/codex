@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+root="$CODEX_SSH_COMPAT_ROOT"
+python_path=$(cat "$root/python-path.txt")
+exec "$python_path" -u "$(cygpath -w "$root/manager.py")" codex "$@"
