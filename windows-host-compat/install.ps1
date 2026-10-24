@@ -1,3 +1,4 @@
+param([string]$PublicKey)
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
@@ -30,8 +31,12 @@ if (!(Test-Path $exe) -or !(Test-Path $stamp) -or [IO.File]::ReadAllText($stamp)
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 $keys = if ($isAdmin) { Join-Path $env:ProgramData 'ssh\administrators_authorized_keys' } else { Join-Path $env:USERPROFILE '.ssh\authorized_keys' }
 if (!(Test-Path -LiteralPath $keys)) { throw 'Existing authorized_keys file required; configure normal SSH first' }
-$pub = [IO.File]::ReadAllText((Join-Path $root 'client.pub')).Trim()
+$pub = if ($PublicKey) { $PublicKey.Trim() } else { [IO.File]::ReadAllText((Join-Path $root 'client.pub')).Trim() }
 if ($pub -notmatch '^ssh-ed25519 [A-Za-z0-9+/=]+ codex-windows-ssh-compat$') { throw 'Unexpected dedicated public key' }
+$clients = Join-Path $root 'state\clients'
+Protect-Directory $clients
+$sha = [Security.Cryptography.SHA256]::Create()
+try { $clientId = ([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::ASCII.GetBytes($pub.Split(' ')[1])))).Replace('-','').ToLowerInvariant() } finally { $sha.Dispose() }
 $before = [IO.File]::ReadAllText($keys)
 if (!$before.Contains($pub.Split(' ')[1])) {
     $backup = Join-Path $root ('state\authorized_keys.before-' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfff'))
@@ -39,5 +44,11 @@ if (!$before.Contains($pub.Split(' ')[1])) {
     $forced = '\"' + $exe.Replace('\','/') + '\"'
     $line = 'command="' + $forced + '",no-agent-forwarding,no-pty ' + $pub
     [IO.File]::AppendAllText($keys, "`n" + $line + "`n", [Text.UTF8Encoding]::new($false))
+} else {
+    $matching = @([IO.File]::ReadAllLines($keys) | Where-Object { $_.Contains($pub.Split(' ')[1]) })
+    if ($matching.Count -ne 1 -or !$matching[0].Contains('compat-shell.exe') -or !$matching[0].StartsWith('command=')) {
+        throw 'Dedicated key already exists with unexpected options; entry preserved for manual review'
+    }
 }
+[IO.File]::WriteAllText((Join-Path $clients ($clientId+'.pub')), $pub+"`n", [Text.UTF8Encoding]::new($false))
 [PSCustomObject]@{root=$root; authorizedKeys=$keys; defaultShellChanged=$false; sshServiceRestarted=$false} | ConvertTo-Json -Compress

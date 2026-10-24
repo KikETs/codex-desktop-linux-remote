@@ -1,0 +1,2 @@
+windows-host-compat/bin/* text eol=lf
+windows-host-compat/*.sh text eol=lf

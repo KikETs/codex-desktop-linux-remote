@@ -10,6 +10,8 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 const {EventEmitter, once} = require('node:events');
 const host = process.argv[2];
+const ssh = process.platform === 'win32'
+  ? path.join(process.env.WINDIR, 'System32', 'OpenSSH', 'ssh.exe') : 'ssh';
 if (!host || !process.argv[3]) throw Error('Usage: node test-live.cjs SSH_ALIAS EXTRACTED_OFFICIAL_WRAPPER');
 const {wrap} = require(path.resolve(process.argv[3]));
 
@@ -19,7 +21,7 @@ class Client extends EventEmitter {
     this.server = net.createServer(socket => {
       this.sockets.add(socket); socket.on('close', () => this.sockets.delete(socket));
       const marker = crypto.randomBytes(8);
-      const child = spawn('ssh', ['-T', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes',
+      const child = spawn(ssh, ['-T', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=yes',
         '-o', 'ConnectTimeout=10', host, wrap('exec codex app-server proxy', marker)]);
       this.children.add(child); this.stderr = '';
       child.stderr.on('data', b => { this.stderr = (this.stderr + b).slice(-4000); });
@@ -78,7 +80,7 @@ class Client extends EventEmitter {
       const server=net.createServer(s=>s.end());server.listen(0,'127.0.0.1');await once(server,'listening');
       const port=server.address().port, hex=port.toString(16).toUpperCase().padStart(4,'0');
       const query=`listeners=$(awk '$4 == "0A" && $2 ~ /:${hex}$/ {print $2}' /proc/net/tcp /proc/net/tcp6) || exit 1\n[ "$listeners" = '0100007F:${hex}' ] || exit 1`;
-      try {await promisify(execFile)('ssh',['-T','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','ExitOnForwardFailure=yes',
+      try {await promisify(execFile)(ssh,['-T','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','ExitOnForwardFailure=yes',
         '-R',`127.0.0.1:${port}:127.0.0.1:${port}`,host,wrap(query)],{timeout:15000});}
       finally {server.close();}
     });
